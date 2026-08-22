@@ -32,7 +32,7 @@ def run_data_quality_checks(spark: SparkSession, batch_id: str):
 
     # Save DQ Log Entries
     dq_records = [
-        ("quarantine_record_check", "weather_catalog.silver_slv_invalid_records", invalid_status, invalid_count, datetime.now(), batch_id),
+        ("quarantine_record_check", "weather_catalog.silver.slv_invalid_records", invalid_status, invalid_count, datetime.now(), batch_id),
         ("fact_uniqueness_check", "weather_catalog.gold.fact_weather_observations", dup_status,
          fact_dups, datetime.now(), batch_id)
     ]
