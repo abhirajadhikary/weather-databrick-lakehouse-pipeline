@@ -1,0 +1,6 @@
+{
+  "base_url": "https://api.weatherapi.com/v1",
+  "default_cities": ["London", "New York", "Tokyo", "Paris", "Sydney", "Kolkata"],
+  "timeout": 10,
+  "max_retries": 5
+}
