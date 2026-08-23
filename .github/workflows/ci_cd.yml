@@ -26,6 +26,8 @@ jobs:
           pip install pytest pyspark
 
       - name: Run PyTest
+        env:
+          WEATHER_API_KEY: ${{ secrets.WEATHER_API_KEY }}
         run: |
           pytest tests/ -v
 
