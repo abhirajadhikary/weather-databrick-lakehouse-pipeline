@@ -1,3 +1,7 @@
+<div align="center">
+  <img width="4962" height="1942" alt="image" src="https://github.com/user-attachments/assets/912983a5-6ce9-4f5a-89f0-73d13a2030c7" />
+</div>
+
 # Weather Databricks Lakehouse Pipeline
 
 An end-to-end, batch-oriented data platform built on Databricks designed to ingest, validate, model, and serve weather observation data using Medallion Architecture and Delta Lake.
