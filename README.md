@@ -23,6 +23,11 @@ An end-to-end, batch-oriented data platform built on Databricks designed to inge
                                                                            (Daily Aggregations)
                                                                                     ▼
                                                                         gld_daily_weather_metrics
+                                                                                    │
+                                                                       (Databricks SQL & Dashboards)
+                                                                                    ▼
+                                                                      [ Lakehouse Dashboards v3 ]
+
 ```
 
 ---
@@ -32,11 +37,9 @@ An end-to-end, batch-oriented data platform built on Databricks designed to inge
 * **Bronze (`weather_catalog.bronze`)**
 * `brz_weather_observations`: Immutable raw landing layer preserving original API payloads alongside ingestion metadata (`batch_id`, `ingestion_timestamp`, `source_system`).
 
-
 * **Silver (`weather_catalog.silver`)**
 * `slv_weather_observations`: Cleaned, flattened, and type-casted schema. Idempotent upserts performed via `MERGE INTO` based on natural key (`name`, `last_updated_epoch`).
 * `slv_invalid_records`: Quarantine table isolating records failing domain validation (e.g., negative visibility, invalid lat/lon coordinates, null keys).
-
 
 * **Gold (`weather_catalog.gold`)**
 * **Star Schema Dimensional Model**:
@@ -44,29 +47,34 @@ An end-to-end, batch-oriented data platform built on Databricks designed to inge
 * `dim_weather_condition`: Lookup dimension mapping condition codes to descriptive texts.
 * `fact_weather_observations`: Central fact table capturing fine-grained numerical metrics.
 
-
 * `gld_daily_weather_metrics`: Pre-calculated analytical summary product providing daily averages, totals, and thresholds.
-
 
 * **Observability (`weather_catalog.observability`)**
 * `data_quality_results`: Automated validation audit logs.
 * `pipeline_runs`: Per-batch row movement and execution tracking logs.
 
+---
 
+## 3. SQL Analytics & Lakehouse Dashboards
+
+The serving layer features analytical Databricks SQL queries feeding interactive **Lakehouse Dashboards (v3)**:
+
+* **Daily Temperature Trends**: Time-series line chart tracking average and extreme daily temperatures across monitored cities (`Daily Temperature Trends by City`).
+* **Rain & Extreme Weather Summary**: Grouped combo/bar charts visualizing cumulative rainfall (`cumulative_rain_mm`) alongside peak wind speed metrics (`peak_wind_kph`).
+* **Pipeline Observability Health**: Operational monitoring visualizers evaluating real-time batch processing volumes, quarantine counts, and execution latency (`Pipeline Observability Health`).
 
 ---
 
-## 3. Data Quality & Observability
+## 4. Data Quality, Testing & CI/CD
 
 * **Quarantine Enforcement**: Invalid records are filtered and routed to `slv_invalid_records` rather than dropped silently.
-* **Automated Audit Checks**:
-* Uniqueness validation on primary keys in Gold fact tables.
-* Record contamination checks tracking quarantined batch counts.
-* Batch lineage tracking comparing row volumes from Bronze through Gold.
+* **Automated Unit Testing**: PyTest test suite executing isolated local Spark session assertions against JSON schema parsing and quarantine domain filtering logic (`tests/test_transformations.py`).
+* **CI/CD Automation**: GitHub Actions workflow (`.github/workflows/ci_cd.yml`) executing PyTest unit tests on pull requests and deploying code changes directly to Databricks upon merging into `main`.
+* **Databricks Asset Bundles (DABs)**: Declarative multi-environment infrastructure-as-code management across `dev` and `prod` targets via `databricks.yml`.
 
 ---
 
-## 4. Orchestration & Operations
+## 5. Orchestration & Operations
 
 The pipeline is fully automated using **Databricks Workflows** running on a sequential task DAG:
 
@@ -78,9 +86,12 @@ The pipeline is fully automated using **Databricks Workflows** running on a sequ
 
 ---
 
-## 5. Local Project Structure
+## 6. Project Structure
 
 ```text
+├── .github/
+│   └── workflows/
+│       └── ci_cd.yml
 ├── configs/
 │   └── config.json
 ├── notebooks/
@@ -101,6 +112,9 @@ The pipeline is fully automated using **Databricks Workflows** running on a sequ
 │   │   └── pipeline_metrics.py
 │   └── utils/
 │       └── table_maintenance.py
+├── tests/
+│   └── test_transformations.py
+├── databricks.yml
 └── README.md
 
 ```
