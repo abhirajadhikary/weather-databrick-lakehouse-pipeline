@@ -1,4 +1,4 @@
-# Weather Intelligence Lakehouse Platform
+# Weather Databricks Lakehouse Pipeline
 
 An end-to-end, batch-oriented data platform built on Databricks designed to ingest, validate, model, and serve weather observation data using Medallion Architecture and Delta Lake.
 
