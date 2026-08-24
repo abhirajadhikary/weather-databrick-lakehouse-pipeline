@@ -38,24 +38,34 @@ An end-to-end, batch-oriented data platform built on Databricks designed to inge
 
 ## 2. Medallion Layer Design
 
+```text
+Reading REST API JSON payloads 
+   └─► Writing Delta/Parquet files to Bronze (`brz_weather_observations`)
+         └─► Reading Delta/Parquet from Bronze 
+               ├─► Writing Clean Delta/Parquet to Silver (`slv_weather_observations`)
+               └─► Writing Invalid Delta/Parquet to Quarantine (`slv_invalid_records`)
+                     └─► Reading Delta/Parquet from Silver
+                           └─► Writing Star Schema Delta/Parquet to Gold (`fact_` & `dim_` tables)
+```
+
 * **Bronze (`weather_catalog.bronze`)**
-* `brz_weather_observations`: Immutable raw landing layer preserving original API payloads alongside ingestion metadata (`batch_id`, `ingestion_timestamp`, `source_system`).
+  - `brz_weather_observations`: Immutable raw landing layer preserving original API payloads alongside ingestion metadata (`batch_id`, `ingestion_timestamp`, `source_system`).
 
 * **Silver (`weather_catalog.silver`)**
-* `slv_weather_observations`: Cleaned, flattened, and type-casted schema. Idempotent upserts performed via `MERGE INTO` based on natural key (`name`, `last_updated_epoch`).
-* `slv_invalid_records`: Quarantine table isolating records failing domain validation (e.g., negative visibility, invalid lat/lon coordinates, null keys).
+  - `slv_weather_observations`: Cleaned, flattened, and type-casted schema. Idempotent upserts performed via `MERGE INTO` based on natural key (`name`, `last_updated_epoch`).
+  - `slv_invalid_records`: Quarantine table isolating records failing domain validation (e.g., negative visibility, invalid lat/lon coordinates, null keys).
 
 * **Gold (`weather_catalog.gold`)**
 * **Star Schema Dimensional Model**:
-* `dim_location`: Dimension table containing spatial details keyed by MD5 location hashes.
-* `dim_weather_condition`: Lookup dimension mapping condition codes to descriptive texts.
-* `fact_weather_observations`: Central fact table capturing fine-grained numerical metrics.
+  - `dim_location`: Dimension table containing spatial details keyed by MD5 location hashes.
+  - `dim_weather_condition`: Lookup dimension mapping condition codes to descriptive texts.
+  - `fact_weather_observations`: Central fact table capturing fine-grained numerical metrics.
 
 * `gld_daily_weather_metrics`: Pre-calculated analytical summary product providing daily averages, totals, and thresholds.
 
 * **Observability (`weather_catalog.observability`)**
-* `data_quality_results`: Automated validation audit logs.
-* `pipeline_runs`: Per-batch row movement and execution tracking logs.
+  - `data_quality_results`: Automated validation audit logs.
+  - `pipeline_runs`: Per-batch row movement and execution tracking logs.
 
 ---
 
